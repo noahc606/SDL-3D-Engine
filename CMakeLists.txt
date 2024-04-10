@@ -31,7 +31,7 @@ set_target_properties(${PROJ_OUT} PROPERTIES
 )
 
 # Linking
-target_link_libraries(${PROJ_OUT} PRIVATE "-lcurl -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lSDL2_net")
+target_link_libraries(${PROJ_OUT} PRIVATE "-lSDL2")
 
 # Add include directories (everywhere there is a header file: libraries and BTE src dirs)
 target_include_directories(${PROJ_OUT} PRIVATE ${PROJ_SRC_DIRS})

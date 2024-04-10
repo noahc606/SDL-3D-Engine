@@ -28,10 +28,10 @@ Point3d& Point3d::operator=(const Point3d& other)
 Point3d& Point3d::multiply4d(Matrix4d b)
 {
     Point3d res(0, 0, 0);
-    res.x = x*b.get(0, 0) + y*b.get(0, 1) + z*b.get(0, 2) + b.get(0, 3);
-    res.y = x*b.get(1, 0) + y*b.get(1, 1) + z*b.get(1, 2) + b.get(1, 3);
-    res.z = x*b.get(2, 0) + y*b.get(2, 1) + z*b.get(2, 2) + b.get(2, 3);
-    double w = x*b.get(3, 05) + y*b.get(3, 1) + z*b.get(3, 2) + b.get(3, 3);
+    res.x =     x*b.get(0, 0) + y*b.get(1, 0) + z*b.get(2, 0) + b.get(3, 0);
+    res.y =     x*b.get(0, 1) + y*b.get(1, 1) + z*b.get(2, 1) + b.get(3, 1);
+    res.z =     x*b.get(0, 2) + y*b.get(1, 2) + z*b.get(2, 2) + b.get(3, 2);
+    double w =  x*b.get(0, 3) + y*b.get(1, 3) + z*b.get(2, 3) + b.get(3, 3);
 
     if( w!=0.0 ) {
         res.x /= w;
@@ -41,11 +41,11 @@ Point3d& Point3d::multiply4d(Matrix4d b)
         return (*this);
     }
     
-    printf("Matrix4d.multiply3d() - w shouldn't be zero!\n");
-    res.x /= 100;
-    res.y /= 100;
-    res.z /= 100;
-    set(res.x, res.y, res.z);
+    //printf("Matrix4d.multiply3d() - w shouldn't be zero!\n");
+    //res.x /= 100;
+    //res.y /= 100;
+    //res.z /= 100;
+    //set(res.x, res.y, res.z);
     return (*this);
 }
 Point3d& Point3d::translate(const Point3d& p)

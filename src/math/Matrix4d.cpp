@@ -9,7 +9,7 @@ Matrix4d::Matrix4d()
 }
 
 /*
-   Return mat[row][col] which represents the value at that spot of the matrix.
+    Return mat[row][col] which represents the value at that spot of the matrix.
 */
 double Matrix4d::get(int row, int col)
 {
@@ -58,9 +58,9 @@ void Matrix4d::reset()
 void Matrix4d::setToProjMatrix(int screenWidth, int screenHeight)
 {
     //Matrix taken from https://www.youtube.com/watch?v=ih20l3pJoeU
-    double near = 8.0;                                              //Near plane (distance from camera/eyes to screen)
-    double far = 1024.0;                                            //Far plane
-    double fov = 60.0;                                              //Field of View
+    double near = 0.1;                                              //Near plane (distance from camera/eyes to screen)
+    double far = 1000.0;                                            //Far plane
+    double fov = 90.0;                                              //Field of View
     double aspectRatio = (double)screenWidth/(double)screenHeight;  //Screen aspect ratio
     double fovRad = 1.0/std::tan( fov*0.5/180.0*M_PI );             //modified fov value, in radians
     
@@ -68,8 +68,8 @@ void Matrix4d::setToProjMatrix(int screenWidth, int screenHeight)
     mat[0][0] = aspectRatio*fovRad;
     mat[1][1] = fovRad;
     mat[2][2] = far/(far-near);
-    mat[2][3] = (-far*near)/(far-near);
     mat[3][2] = 1.0; 
+    mat[2][3] = (-far*near)/(far-near);
 }
 
 void Matrix4d::setToXRotMatrix(double theta)
@@ -77,8 +77,8 @@ void Matrix4d::setToXRotMatrix(double theta)
     reset();
     mat[0][0] = 1;
     mat[1][1] = std::cos(theta);
-    mat[1][2] = -std::sin(theta);
-    mat[2][1] = std::sin(theta);
+    mat[1][2] = std::sin(theta);
+    mat[2][1] = -std::sin(theta);
     mat[2][2] = std::cos(theta);
     mat[3][3] = 1;
 }
@@ -87,9 +87,9 @@ void Matrix4d::setToYRotMatrix(double theta)
 {
     reset();
     mat[0][0] = std::cos(theta);
-    mat[0][2] = -std::sin(theta);
+    mat[0][2] = std::sin(theta);
     mat[1][1] = 1;
-    mat[2][0] = std::sin(theta);
+    mat[2][0] = -std::sin(theta);
     mat[2][2] = std::cos(theta);
     mat[3][3] = 1;
 }
@@ -98,8 +98,8 @@ void Matrix4d::setToZRotMatrix(double theta)
 {
     reset();
     mat[0][0] = std::cos(theta);
-    mat[0][1] = -std::sin(theta);
-    mat[1][0] = std::sin(theta);
+    mat[0][1] = std::sin(theta);
+    mat[1][0] = -std::sin(theta);
     mat[1][1] = std::cos(theta);
     mat[2][2] = 1;
     mat[3][3] = 1;
