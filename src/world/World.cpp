@@ -53,13 +53,17 @@ void World::draw(SDL_Renderer* r)
 		//Create copy of the original tris to transform
 		Tri tri = *triOriginal;
 		
+		//Set tri's color
+		double avgX = (tri.points[0].x+tri.points[1].x+tri.points[2].x)/3;
+    	SDL_SetRenderDrawColor(r, 100+avgX*123, 200+avgX*456, 300+avgX*789, 255);
+
 		//Transform tri
 		tri = tri.multiply4d(matRotZ);
 		tri = tri.multiply4d(matRotX);
 		tri = tri.translate(Point3d(0, 0, 3));
 		tri = tri.multiply4d(matProj);
-		tri = tri.translate(Point3d(5, 5, 0));
-		tri = tri.scale(100, 100, 1);
+		tri = tri.translate(Point3d(10, 10, 0));
+		tri = tri.scale(50, 50, 1);
 
 		//Draw the tri
 		SDL_RenderDrawLine(r, tri.points[0].x, tri.points[0].y, tri.points[1].x, tri.points[1].y);
