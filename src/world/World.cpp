@@ -1,15 +1,37 @@
 #include "World.h"
 #include "Matrix4d.h"
 
-
 World::World(){}
 
 void World::init()
 {
-	lines.push_back(new Line3d(0, 0, 0, 0, 20, 0));
-	lines.push_back(new Line3d(0, 0, 0, 20, 0, 0));
-	lines.push_back(new Line3d(20, 20, 0, 0, 20, 0));
-	lines.push_back(new Line3d(20, 20, 0, 20, 0, 0));
+	double mesh[][9] = {
+		
+		{ 0, 0, 0,    0, 1, 0,    1, 1, 0 },
+		{ 0, 0, 0,    1, 1, 0,    1, 0, 0 },
+		{ 1, 0, 0,    1, 1, 0,    1, 1, 1 },
+		{ 1, 0, 0,    1, 1, 1,    1, 0, 1 },
+		{ 1, 0, 1,    1, 1, 1,    0, 1, 1 },
+		{ 1, 0, 1,    0, 1, 1,    0, 0, 1 },
+		{ 0, 0, 1,    0, 1, 1,    0, 1, 0 },
+		{ 0, 0, 1,    0, 1, 0,    0, 0, 0 },
+		{ 0, 1, 0,    0, 1, 1,    1, 1, 1 },
+		{ 0, 1, 0,    1, 1, 1,    1, 1, 0 },
+		{ 1, 0, 1,    0, 0, 1,    0, 0, 0 },
+		{ 1, 0, 1,    0, 0, 0,    1, 0, 0 },
+	};
+
+	for(int i = 0; i<(sizeof(mesh)/sizeof(mesh[0])); i++) {
+
+
+		for(int j = 0; j<9; j++) {
+			double* temp = mesh[i];
+			temp[0] += 1;
+			temp[3] += 1;
+			temp[6] += 1;
+			tris.push_back(new Tri(temp));
+		}
+	}
 }
 
 World::~World(){}
@@ -21,19 +43,27 @@ void World::tick()
 
 void World::draw(SDL_Renderer* r)
 {
-	Point3d p1(0, 0, 0);
-	Point3d pT(0, 0, 0);
-	Matrix4d matP; matP.setToProjMatrix(1000, 1000);
-	Matrix4d matX; matX.setToXRotMatrix(0); //matX.setToXRotMatrix(timer/40.0);
-	Matrix4d matY; matY.setToYRotMatrix(0); //matY.setToYRotMatrix(timer/40.0);
-	Matrix4d matZ; matZ.setToZRotMatrix(0); matZ.setToZRotMatrix(timer/40.0);
+	Matrix4d matRotZ; matRotZ.setToZRotMatrix(timer/100.0);
+	Matrix4d matRotX; matRotX.setToXRotMatrix(timer/100.0);
+	Matrix4d matProj; matProj.setToProjMatrix(1000, 1000);
 
-	//Transform and draw all lines
-	SDL_SetRenderDrawColor(r, 128, 0, 255, 255);
-	for(int i = 0; i<lines.size(); i++) {
-		Line3d l = (*lines[i]);
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+	for(Tri* triOriginal : tris)
+	{
+		//Create copy of the original tris to transform
+		Tri tri = *triOriginal;
+		
+		//Transform tri
+		tri = tri.multiply4d(matRotZ);
+		tri = tri.multiply4d(matRotX);
+		tri = tri.translate(Point3d(0, 0, 3));
+		tri = tri.multiply4d(matProj);
+		tri = tri.translate(Point3d(5, 5, 0));
+		tri = tri.scale(100, 100, 1);
 
-		l.translate(p1).multiply4d(matP).multiply4d(matX).multiply4d(matY).multiply4d(matZ).translate(pT);
-		SDL_RenderDrawLine(r, 640+l.p1.x, 480+l.p1.y, 640+l.p2.x, 480+l.p2.y);
+		//Draw the tri
+		SDL_RenderDrawLine(r, tri.points[0].x, tri.points[0].y, tri.points[1].x, tri.points[1].y);
+		SDL_RenderDrawLine(r, tri.points[0].x, tri.points[0].y, tri.points[2].x, tri.points[2].y);
+		SDL_RenderDrawLine(r, tri.points[1].x, tri.points[1].y, tri.points[2].x, tri.points[2].y);
 	}
 }
