@@ -3,8 +3,6 @@
 #include <SDL2/SDL_timer.h>
 #include <stdio.h>
 #include "Main.h"
-#include "Point3d.h"
-#include "Matrix4d.h"
 
 MainLoop::MainLoop()
 {

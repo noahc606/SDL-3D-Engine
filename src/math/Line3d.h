@@ -1,15 +1,10 @@
 #pragma once
-#include "Point3d.h"
+#include "Vec3d.h"
+#include "Poly3d.h"
 
-class Line3d {
+class Line3d : public Poly3d {
 public:
-    Line3d(Point3d p1, Point3d p2);
-    Line3d(double p1x, double p1y, double p1z, double p2x, double p2y, double p2z);
-    
-    Line3d& multiply4d(Matrix4d b);
-    Line3d& translate(const Point3d& p);
-
-    Point3d p1;
-    Point3d p2;
+    Line3d(Vec3d v1, Vec3d v2);
+    Line3d(double v1x, double v1y, double v1z, double v2x, double v2y, double v2z);
 private:
 };

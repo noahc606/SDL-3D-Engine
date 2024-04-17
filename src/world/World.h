@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include "Line3d.h"
-#include "Tri.h"
+#include "Tri3d.h"
 
 class World {
 public:
@@ -13,7 +13,7 @@ public:
     void tick();
     void draw(SDL_Renderer* r);
 private:
-    std::vector<Tri*> tris;
+    std::vector<Tri3d*> tris;
 
     double timer = 0;
     double camX = 0, camY = 0, camZ = 0;

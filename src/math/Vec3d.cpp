@@ -1,20 +1,26 @@
-#include "Point3d.h"
+#include "Vec3d.h"
 
-Point3d::Point3d(double x, double y, double z) { set(x, y, z); }
-Point3d::Point3d(Point3d& p3d) { (*this) = p3d; }
-Point3d::Point3d() { set(0, 0, 0); }
+Vec3d::Vec3d(double x, double y, double z) { set(x, y, z); }
+Vec3d::Vec3d(const Vec3d& p3d) { (*this) = p3d; }
+Vec3d::Vec3d() { set(0, 0, 0); }
 
-void Point3d::set(double x, double y, double z) 
+void Vec3d::set(double x, double y, double z) 
 {
-    Point3d::x = x;
-    Point3d::y = y;
-    Point3d::z = z;
+    Vec3d::x = x;
+    Vec3d::y = y;
+    Vec3d::z = z;
 }
 
-Point3d& Point3d::operator=(const Point3d& other)
+Vec3d& Vec3d::operator=(const Vec3d& other)
 {
     set(other.x, other.y, other.z);
     return *this;
+}
+
+Vec3d Vec3d::operator-(const Vec3d& other) const
+{
+    Vec3d res(-x, -y, -z);
+    return res;
 }
 
 /*
@@ -25,9 +31,9 @@ Point3d& Point3d::operator=(const Point3d& other)
     Returns: a 3D point which is a*b (a transformed by b).
 */
 
-Point3d& Point3d::multiply4d(Matrix4d b)
+Vec3d Vec3d::multiply4d(Matrix4d b)
 {
-    Point3d res(0, 0, 0);
+    Vec3d res(0, 0, 0);
     res.x =     x*b.get(0, 0) + y*b.get(1, 0) + z*b.get(2, 0) + b.get(3, 0);
     res.y =     x*b.get(0, 1) + y*b.get(1, 1) + z*b.get(2, 1) + b.get(3, 1);
     res.z =     x*b.get(0, 2) + y*b.get(1, 2) + z*b.get(2, 2) + b.get(3, 2);
@@ -37,8 +43,7 @@ Point3d& Point3d::multiply4d(Matrix4d b)
         res.x /= w;
         res.y /= w;
         res.z /= w;
-        set(res.x, res.y, res.z);
-        return (*this);
+        return res;
     }
     
     //printf("Matrix4d.multiply3d() - w shouldn't be zero!\n");
@@ -46,12 +51,13 @@ Point3d& Point3d::multiply4d(Matrix4d b)
     //res.y /= 100;
     //res.z /= 100;
     //set(res.x, res.y, res.z);
-    return (*this);
+    return res;
 }
-Point3d& Point3d::translate(const Point3d& p)
+Vec3d Vec3d::translate(const Vec3d& p)
 {
-    x += p.x;
-    y += p.y;
-    z += p.z;
-    return (*this);
+    Vec3d res(x, y, z);
+    res.x += p.x;
+    res.y += p.y;
+    res.z += p.z;
+    return res;
 }
