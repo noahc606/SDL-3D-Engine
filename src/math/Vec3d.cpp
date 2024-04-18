@@ -1,5 +1,7 @@
 #include "Vec3d.h"
+#include <cmath>
 #include <sstream>
+
 
 Vec3d::Vec3d(double x, double y, double z) { set(x, y, z); }
 Vec3d::Vec3d(const Vec3d& p3d) { (*this) = p3d; }
@@ -33,6 +35,11 @@ Vec3d Vec3d::operator-() const
 double Vec3d::operator*(const Vec3d& other) const
 {
     return (*this).dot(other);
+}
+
+double Vec3d::magnitude() const
+{
+    return std::sqrt(x*x+y*y+z*z);
 }
 
 Vec3d Vec3d::scale(double factor) const

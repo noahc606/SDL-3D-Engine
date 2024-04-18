@@ -1,5 +1,6 @@
 #include "World.h"
 #include "Matrix4d.h"
+#include <algorithm>
 
 World::World(){}
 
@@ -20,7 +21,7 @@ void World::init()
 		{ 1, 0, 1,    0, 0, 0,    1, 0, 0 },
 	};
 
-	for(int j = 0; j<1; j++)
+	for(int j = 0; j<10; j++)
 	for(int i = 0; i<(sizeof(mesh)/sizeof(mesh[0])); i++) {
 		Tri3d t2 = Tri3d(mesh[i]); t2 = t2.translate(Vec3d(j*2, 0, 0));
 		tris.push_back(t2);
@@ -50,8 +51,9 @@ void World::draw(SDL_Renderer* r)
 
     SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
 
-	for(Tri3d triOriginal : tris)
-	{
+	/** Build list of triangles to raster **/
+	std::vector<Tri3d> trisToRaster;
+	for(Tri3d triOriginal : tris) {
 		//Copy of the original tris to transform
 		Tri3d tri = triOriginal;
 		
@@ -73,30 +75,49 @@ void World::draw(SDL_Renderer* r)
 		//Get normal of the tri to determine if the triangle should be drawn
 		//if(true) {
 		if( nl.dot(triNP)<0 ) {
-			//Light direction
-			Vec3d ld(0, 0, -1.0);	//Light Direction
-			double ls = std::sqrt(ld.x*ld.x+ld.y*ld.y+ld.z*ld.z);
-			ld.scale((double)(1)/ls);
-			double b = nl.dot(ld);
 
-			SDL_SetRenderDrawColor(r, 255*b, 255*b, 255*b, 255);
+			//Find tri's brightness
+			Vec3d ld(0, 0, -1.0);		//Light Direction
+			double ls = ld.magnitude();	//Magnitude of light vector
+			ld.scale((double)(1)/ls);	//Scale light direction vector so that its mag. == 1.
+			double b = nl.dot(ld);		//Get brightness, store into 'b'.
+			
+			//Set tri's color based on brightness (dark purple-ish)
 			SDL_Color c;
 			c.r = 255*b*0.25;
 			c.g = 255*b*0.0;
 			c.b = 255*b*1.0;
 			c.a = 255;
+			tri.col = c;
 
+			trisToRaster.push_back(tri);
+		}
+	}
 
-			std::vector<SDL_Vertex> verts = {
-				{ SDL_FPoint{ (float)tri.pts[0].x+tx, (float)tri.pts[0].y+ty }, c, SDL_FPoint{ 0 }, },
-				{ SDL_FPoint{ (float)tri.pts[1].x+tx, (float)tri.pts[1].y+ty }, c, SDL_FPoint{ 0 }, },
-				{ SDL_FPoint{ (float)tri.pts[2].x+tx, (float)tri.pts[2].y+ty }, c, SDL_FPoint{ 0 }, },
-			};
+	/** Sort trisToRaster so that triangles with a higher avg. Z are put in front (drawn last) **/
+	std::sort(trisToRaster.begin(), trisToRaster.end(), [](Tri3d& t1, Tri3d& t2) {
+		double z1 = (t1.pts[0].z+t1.pts[1].z+t1.pts[2].z)/3.0;	//Avg. Z in points of t1
+		double z2 = (t2.pts[0].z+t2.pts[1].z+t2.pts[2].z)/3.0;	//Avg. Z in points of t2
+		return z1>z2;
+	});
 
-			SDL_RenderGeometry(r, nullptr, verts.data(), verts.size(), nullptr, 0 );
-			//SDL_RenderDrawLine(r, tri.pts[0].x+tx, tri.pts[0].y+ty, tri.pts[1].x+tx, tri.pts[1].y+ty);
-			//SDL_RenderDrawLine(r, tri.pts[0].x+tx, tri.pts[0].y+ty, tri.pts[2].x+tx, tri.pts[2].y+ty);
-			//SDL_RenderDrawLine(r, tri.pts[1].x+tx, tri.pts[1].y+ty, tri.pts[2].x+tx, tri.pts[2].y+ty);
+	/** Raster triangles **/
+	for(Tri3d tri : trisToRaster) {
+		SDL_Color c = tri.col;
+		std::vector<SDL_Vertex> verts = {
+			{ SDL_FPoint{ (float)tri.pts[0].x+tx, (float)tri.pts[0].y+ty }, c, SDL_FPoint{ 0 }, },
+			{ SDL_FPoint{ (float)tri.pts[1].x+tx, (float)tri.pts[1].y+ty }, c, SDL_FPoint{ 0 }, },
+			{ SDL_FPoint{ (float)tri.pts[2].x+tx, (float)tri.pts[2].y+ty }, c, SDL_FPoint{ 0 }, },
+		};
+
+		SDL_SetRenderDrawColor(r, c.r, c.g, c.b, c.a);
+		SDL_RenderGeometry(r, nullptr, verts.data(), verts.size(), nullptr, 0 );
+
+		if(0) {
+			SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+			SDL_RenderDrawLine(r, tri.pts[0].x+tx, tri.pts[0].y+ty, tri.pts[1].x+tx, tri.pts[1].y+ty);
+			SDL_RenderDrawLine(r, tri.pts[0].x+tx, tri.pts[0].y+ty, tri.pts[2].x+tx, tri.pts[2].y+ty);
+			SDL_RenderDrawLine(r, tri.pts[1].x+tx, tri.pts[1].y+ty, tri.pts[2].x+tx, tri.pts[2].y+ty);
 		}
 	}
 }

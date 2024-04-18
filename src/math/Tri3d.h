@@ -1,3 +1,4 @@
+#include <SDL2/SDL.h>
 #include "Vec3d.h"
 #include "Poly3d.h"
 
@@ -8,5 +9,7 @@ public:
 
     Tri3d& operator=(const Poly3d& other);
     Vec3d normal();
+
+    SDL_Color col;
 private:
 };

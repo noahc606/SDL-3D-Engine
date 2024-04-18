@@ -13,6 +13,7 @@ public:
     std::string toString();
     Vec3d operator- () const;
     double operator* (const Vec3d& other) const;
+    double magnitude() const;
     
     Vec3d scale(double factor) const;
     Vec3d stretch(const Vec3d& sv) const;
