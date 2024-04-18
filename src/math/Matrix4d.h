@@ -14,7 +14,7 @@ public:
     Matrix4d();
     
     /* Getters */
-    double get(int row, int col);
+    double get(int row, int col) const;
     std::string toString();
 
     /* Setters */

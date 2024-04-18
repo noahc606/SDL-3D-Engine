@@ -1,4 +1,5 @@
 #include "Vec3d.h"
+#include <sstream>
 
 Vec3d::Vec3d(double x, double y, double z) { set(x, y, z); }
 Vec3d::Vec3d(const Vec3d& p3d) { (*this) = p3d; }
@@ -17,10 +18,46 @@ Vec3d& Vec3d::operator=(const Vec3d& other)
     return *this;
 }
 
-Vec3d Vec3d::operator-(const Vec3d& other) const
+std::string Vec3d::toString()
+{
+    std::stringstream ss;
+    ss << "( " << x << ", " << y << ", " << z << " )";
+    return ss.str();
+}
+
+Vec3d Vec3d::operator-() const
 {
     Vec3d res(-x, -y, -z);
     return res;
+}
+double Vec3d::operator*(const Vec3d& other) const
+{
+    return (*this).dot(other);
+}
+
+Vec3d Vec3d::scale(double factor) const
+{
+    return stretch(Vec3d(factor, factor, factor));
+}
+
+Vec3d Vec3d::stretch(const Vec3d& sv) const
+{
+    Vec3d res(x*sv.x, y*sv.y, z*sv.z);
+    return res;
+}
+
+Vec3d Vec3d::translate(const Vec3d& tv) const
+{
+    Vec3d res(x, y, z);
+    res.x += tv.x;
+    res.y += tv.y;
+    res.z += tv.z;
+    return res;
+}
+
+double Vec3d::dot(const Vec3d& other) const
+{
+    return x*other.x + y*other.y + z*other.z;
 }
 
 /*
@@ -30,8 +67,7 @@ Vec3d Vec3d::operator-(const Vec3d& other) const
     
     Returns: a 3D point which is a*b (a transformed by b).
 */
-
-Vec3d Vec3d::multiply4d(Matrix4d b)
+Vec3d Vec3d::multiply4d(const Matrix4d& b) const
 {
     Vec3d res(0, 0, 0);
     res.x =     x*b.get(0, 0) + y*b.get(1, 0) + z*b.get(2, 0) + b.get(3, 0);
@@ -46,18 +82,5 @@ Vec3d Vec3d::multiply4d(Matrix4d b)
         return res;
     }
     
-    //printf("Matrix4d.multiply3d() - w shouldn't be zero!\n");
-    //res.x /= 100;
-    //res.y /= 100;
-    //res.z /= 100;
-    //set(res.x, res.y, res.z);
-    return res;
-}
-Vec3d Vec3d::translate(const Vec3d& p)
-{
-    Vec3d res(x, y, z);
-    res.x += p.x;
-    res.y += p.y;
-    res.z += p.z;
-    return res;
+    return Vec3d(0, 0, 0);
 }

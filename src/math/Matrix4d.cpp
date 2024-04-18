@@ -11,7 +11,7 @@ Matrix4d::Matrix4d()
 /*
     Return mat[row][col] which represents the value at that spot of the matrix.
 */
-double Matrix4d::get(int row, int col)
+double Matrix4d::get(int row, int col) const
 {
     return mat[row][col];
 }

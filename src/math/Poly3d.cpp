@@ -22,13 +22,11 @@ Poly3d Poly3d::translate(const Vec3d& v)
     return res;
 }
 
-Poly3d Poly3d::scale(double xFactor, double yFactor, double zFactor)
+Poly3d Poly3d::stretch(const Vec3d& sv)
 {
     Poly3d res = (*this);
     for(int i = 0; i<pts.size(); i++) {
-        res.pts[i].x *= xFactor;
-        res.pts[i].y *= yFactor;
-        res.pts[i].z *= zFactor;
+        res.pts[i] = res.pts[i].stretch(Vec3d(sv.x, sv.y, sv.z));
     }
     return res;
 }

@@ -7,7 +7,7 @@ public:
     Poly3d();
 
     Poly3d translate(const Vec3d& v);
-    Poly3d scale(double xFactor, double yFactor, double zFactor);
+    Poly3d stretch(const Vec3d& sv);
     Poly3d multiply4d(Matrix4d b);
     
     Poly3d& set(const Poly3d& other);

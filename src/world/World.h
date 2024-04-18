@@ -13,9 +13,9 @@ public:
     void tick();
     void draw(SDL_Renderer* r);
 private:
-    std::vector<Tri3d*> tris;
+    std::vector<Tri3d> tris;
 
     double timer = 0;
-    double camX = 0, camY = 0, camZ = 0;
+    Vec3d camPos;
     double camPitch = 0, camRoll = 0, camYaw = 0;
 };

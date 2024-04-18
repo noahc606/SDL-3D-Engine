@@ -9,3 +9,19 @@ Line3d::Line3d(double v1x, double v1y, double v1z, double v2x, double v2y, doubl
     pts.push_back(Vec3d(v1x, v1y, v1z));
     pts.push_back(Vec3d(v2x, v2y, v2z));
 }
+
+void Line3d::draw(SDL_Renderer* r)
+{
+
+}
+
+Line3d& Line3d::operator=(const Poly3d& other)
+{
+    if(other.pts.size()==2) {
+        Poly3d::set(other);
+    } else {
+        printf("Error: Can't set a Line3d equal to a Poly3d with %d points.\n", other.pts.size());
+    }
+    
+    return *this;
+}
