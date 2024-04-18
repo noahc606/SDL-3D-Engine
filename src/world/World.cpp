@@ -1,6 +1,9 @@
 #include "World.h"
-#include "Matrix4d.h"
 #include <algorithm>
+#include <sstream>
+#include "Main.h"
+#include "MainLoop.h"
+#include "Matrix4d.h"
 
 World::World(){}
 
@@ -40,6 +43,11 @@ void World::tick()
 
 void World::draw(SDL_Renderer* r)
 {
+	std::stringstream ss1; ss1 << "FPS: " << MainLoop::getCurrentFPS();
+	Main::drawText(r, ss1.str(), 8, 8);
+	std::stringstream ss2; ss2 << "TPS: " << MainLoop::getCurrentTPS();
+	Main::drawText(r, ss2.str(), 8, 30);
+
 	Matrix4d matRotZ; matRotZ.setToZRotMatrix(timer/100.0);
 	Matrix4d matRotY; matRotY.setToXRotMatrix(timer/100.0);
 	Matrix4d matRotX; matRotX.setToXRotMatrix(timer/100.0);
@@ -56,10 +64,6 @@ void World::draw(SDL_Renderer* r)
 	for(Tri3d triOriginal : tris) {
 		//Copy of the original tris to transform
 		Tri3d tri = triOriginal;
-		
-		//Set tri's color
-		double avgX = (tri.pts[0].x+tri.pts[1].x+tri.pts[2].x)/3;
-    	SDL_SetRenderDrawColor(r, 100+avgX*123, 200+avgX*456, 300+avgX*789, 255);
 
 		//Get transformed tri
 		tri = tri.multiply4d(matRotZ);
@@ -113,6 +117,8 @@ void World::draw(SDL_Renderer* r)
 		SDL_SetRenderDrawColor(r, c.r, c.g, c.b, c.a);
 		SDL_RenderGeometry(r, nullptr, verts.data(), verts.size(), nullptr, 0 );
 
+
+		// Draw triangle wireframe
 		if(0) {
 			SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
 			SDL_RenderDrawLine(r, tri.pts[0].x+tx, tri.pts[0].y+ty, tri.pts[1].x+tx, tri.pts[1].y+ty);

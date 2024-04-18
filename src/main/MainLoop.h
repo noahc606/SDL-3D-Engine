@@ -7,11 +7,10 @@ class MainLoop {
 public:
 	MainLoop();
 
+	static int getCurrentFPS();
+	static int getCurrentTPS();
+
 private:
-	bool running = true;
-	uint64_t timer = 0;
-	uint64_t secLast;
-	
 	uint64_t getCurrentTimeNS();
 	uint64_t getDeltaTime(uint64_t now, uint64_t last);
 	
@@ -20,4 +19,10 @@ private:
 	void event();
 
 	World world;
+
+	bool running = true;
+	uint64_t timer = 0;
+	uint64_t secLast;
+	static int currentFPS;
+	static int currentTPS;
 };

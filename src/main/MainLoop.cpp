@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "Main.h"
 
+int MainLoop::currentFPS = 0;
+int MainLoop::currentTPS = 0;
+
 MainLoop::MainLoop()
 {
 	//Init world
@@ -14,8 +17,6 @@ MainLoop::MainLoop()
 	uint64_t nsPerFrame = 1000000000/120;
 	int fps = 0;
 	int tps = 0;
-	int currentFPS = 0;
-	int currentTPS = 0;
 
 	//All units below are in nanoseconds.
 	uint64_t tickLast = 0;
@@ -60,10 +61,12 @@ MainLoop::MainLoop()
 			currentFPS = fps;
 			tps = 0;
 			fps = 0;
-			printf("(TPS, FPS)=(%i,%i)\n", currentTPS, currentFPS);
 		}	
 	}
 }
+
+int MainLoop::getCurrentFPS() { return currentFPS; }
+int MainLoop::getCurrentTPS() { return currentTPS; }
 
 /**
  * Get the time since startup in nanoseconds, according to SDL_GetPerformanceCounter() and SDL_GetPerformanceFrequency().
