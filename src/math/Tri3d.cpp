@@ -1,49 +1,120 @@
 #include "Tri3d.h"
-#include "Line3d.h"
-#include <math.h>
+#include <nch/math-utils/matrixops.h>
+#include <nch/math-utils/vectorops.h>
 
-Tri3d::Tri3d(const Vec3d& p0, const Vec3d& p1, const Vec3d& p2)
+using namespace nch;
+
+Tri3d::Tri3d()
 {
-    pts.push_back(p0);
-    pts.push_back(p1);
-    pts.push_back(p2);
+    for(int i = 0; i<3; i++)
+    p.push_back(t_vec3d(0, 0, 0));
 }
-Tri3d::Tri3d(double coords[9])
+
+Tri3d::Tri3d(t_vec3d p1, t_vec3d p2, t_vec3d p3)
 {
+    p.push_back(p1);
+    p.push_back(p2);
+    p.push_back(p3);
+}
+
+Tri3d::Tri3d(double arr[9])
+{
+    p.push_back(t_vec3d(arr[0], arr[1], arr[2]));
+    p.push_back(t_vec3d(arr[3], arr[4], arr[5]));
+    p.push_back(t_vec3d(arr[6], arr[7], arr[8]));
+}
+
+Tri3d::~Tri3d(){}
+
+Tri3d Tri3d::stretch(const t_vec3d& tv)
+{
+    Tri3d res = (*this);
     for(int i = 0; i<3; i++) {
-        pts.push_back(Vec3d(coords[0+3*i], coords[1+3*i], coords[2+3*i]));
+        res.p[i][0] = res.p[i][0]*tv.x;
+        res.p[i][1] = res.p[i][1]*tv.y;
+        res.p[i][2] = res.p[i][2]*tv.z;
     }
-}
-
-
-Tri3d& Tri3d::operator=(const Poly3d& other)
-{
-    if(other.pts.size()==3) {
-        Poly3d::set(other);
-    } else {
-        printf("Error: Can't set a Tri3d equal to a Poly3d with %d points.\n", other.pts.size());
-    }
-    
-    return *this;
-}
-
-Vec3d Tri3d::normal()
-{
-    Vec3d v1( pts[1].translate(-pts[0]) );
-    Vec3d v2( pts[2].translate(-pts[0]) );
-    Line3d li(v1, v2);
-
-    //printf("%s ...... %s\n", v1.toString().c_str(), v2.toString().c_str());
-
-
-    Vec3d res;
-    res.x = li.pts[0].y*li.pts[1].z - li.pts[0].z*li.pts[1].y;  // y1z2 - z1y2
-    res.y = li.pts[0].z*li.pts[1].x - li.pts[0].x*li.pts[1].z;  // z1x2 - x1z2
-    res.z = li.pts[0].x*li.pts[1].y - li.pts[0].y*li.pts[1].x;  // x1y2 - y1x2
-
-    double len = std::sqrt(res.x*res.x + res.y*res.y + res.z*res.z);
-    res = res.scale(1.0/len);
-    
-    //printf("%s\n", res.toString().c_str());
     return res;
+}
+
+
+Tri3d Tri3d::translate(const t_vec3d& tv)
+{
+    Tri3d res = (*this);
+    for(int i = 0; i<3; i++) {
+        res.p[i][0] = res.p[i][0]+tv.x;
+        res.p[i][1] = res.p[i][1]+tv.y;
+        res.p[i][2] = res.p[i][2]+tv.z;
+    }
+    return res;
+}
+
+Tri3d Tri3d::multiplyVertices(const Mat4x4<double>& m)
+{
+    Tri3d res = (*this);
+    res.p[0] = MatrixOps<double>::multiply(p[0], m);
+    res.p[1] = MatrixOps<double>::multiply(p[1], m);
+    res.p[2] = MatrixOps<double>::multiply(p[2], m);
+    return res;
+}
+
+int Tri3d::clipAgainstPlane(t_vec3d planeP, t_vec3d planeN, Tri3d& inTri, Tri3d& outTri1, Tri3d& outTri2)
+{
+    VectorOps<double> vops;
+
+    planeN = planeN.normalized();
+
+    auto dist = [&](t_vec4d& p) {
+        t_vec3d n = p.vec3().normalized();
+        return (planeN.x*p[0] + planeN.y*p[1] + planeN.z*p[2] - planeN.dot(planeP));
+    };
+
+
+    t_vec4d* inPoints[3];   int numIPs = 0;
+    t_vec4d* outPoints[3];  int numOPs = 0;
+    double d0 = dist(inTri.p[0]);
+    double d1 = dist(inTri.p[1]);
+    double d2 = dist(inTri.p[2]);
+    if(d0>=0)   { inPoints[numIPs++] = &inTri.p[0]; }
+    else        { outPoints[numOPs++] = &inTri.p[0]; }
+    if(d1>=0)   { inPoints[numIPs++] = &inTri.p[1]; }
+    else        { outPoints[numOPs++] = &inTri.p[1]; }
+    if(d2>=0)   { inPoints[numIPs++] = &inTri.p[2]; }
+    else        { outPoints[numOPs++] = &inTri.p[2]; }
+
+    /* Determine type of clip */
+    //Triangle should not be clipped...
+    if(numIPs==0) {
+        return 0;   //No triangles onscreen
+    }
+    if(numIPs==3) {
+        outTri1 = inTri;
+        return 1;   //Original triangle completely onscreen
+    }
+
+    //Triangle should be clipped...
+    if(numIPs==1 && numOPs==2) {
+        outTri1.col = inTri.col;
+
+        outTri1.p[0] = *inPoints[0];
+        outTri1.p[1] = vops.intersectPlane(planeP, planeN, (*inPoints[0]).vec3(), (*outPoints[0]).vec3());
+        outTri1.p[2] = vops.intersectPlane(planeP, planeN, (*inPoints[0]).vec3(), (*outPoints[1]).vec3());
+    
+        return 1;   //Single triangle found
+    }
+    if(numIPs==2 && numOPs==1) {
+        outTri1.col = inTri.col;
+        outTri1.p[0] = *inPoints[0];
+        outTri1.p[1] = *inPoints[1];
+        outTri1.p[2] = vops.intersectPlane(planeP, planeN, (*inPoints[0]).vec3(), (*outPoints[0]).vec3());
+
+        outTri2.col = inTri.col;
+        outTri2.p[0] = *inPoints[1];
+        outTri2.p[1] = outTri1.p[2];
+        outTri2.p[2] = vops.intersectPlane(planeP, planeN, (*inPoints[1]).vec3(), (*outPoints[0]).vec3());
+
+        return 2;
+    }
+
+    return 0;
 }

@@ -9,12 +9,15 @@ endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
-set(CMAKE_C_FLAGS "-std=c++11 -o")
-
+set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+set(CMAKE_C_FLAGS "-std=c++11 -fopenmp -o")
+set(CMAKE_CXX_FLAGS "-fopenmp")
+set(OMP_NUM_THREADS "16")
 
 # Get list of sources and headers
-file (GLOB_RECURSE PROJ_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file (GLOB_RECURSE PROJ_HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.h")
+file (GLOB_RECURSE PROJ_SOURCES FOLLOW_SYMLINKS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/include/*.cpp")
+file (GLOB_RECURSE PROJ_HEADERS FOLLOW_SYMLINKS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOURCE_DIR}/include/*.h")
 
 # Build list of includes
 set (PROJ_SRC_DIRS "")
@@ -31,7 +34,8 @@ set_target_properties(${PROJ_OUT} PROPERTIES
 )
 
 # Linking
-target_link_libraries(${PROJ_OUT} PRIVATE "-lSDL2 -lSDL2_ttf")
+target_link_libraries(${PROJ_OUT} PRIVATE "-lSDL2 -lSDL2_ttf -lSDL2_image -fopenmp")
 
 # Add include directories (everywhere there is a header file: libraries and BTE src dirs)
 target_include_directories(${PROJ_OUT} PRIVATE ${PROJ_SRC_DIRS})
+target_include_directories(${PROJ_OUT} PRIVATE "include")

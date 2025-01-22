@@ -1,5 +1,6 @@
 #include "MainLoop.h"
 #include <iostream>
+#include <nch/sdl-utils/input.h>
 #include <SDL2/SDL_timer.h>
 #include <stdio.h>
 #include "Main.h"
@@ -84,6 +85,7 @@ uint64_t MainLoop::getDeltaTime(uint64_t now, uint64_t last) { return now-last; 
 void MainLoop::tick()
 {
 	timer++;
+	nch::Input::tick();
 	world.tick();
 }
 
@@ -93,7 +95,7 @@ void MainLoop::draw()
 	
 	SDL_SetRenderTarget(rend, NULL);
 	
-	SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(rend, 0, 16, 48, 255);
 	SDL_RenderFillRect(rend, NULL);
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,8 +127,12 @@ void MainLoop::event() {
 				SDL_Quit();
 			} break;
 			
-			case SDL_KEYDOWN:
-			case SDL_KEYUP: {
+			case SDL_KEYDOWN: case SDL_KEYUP:
+			case SDL_MOUSEBUTTONDOWN: case SDL_MOUSEBUTTONUP:
+			case SDL_JOYBUTTONDOWN: case SDL_JOYBUTTONUP:
+			case SDL_JOYHATMOTION:
+			{
+				nch::Input::inputEvents(e);
 			} break;
 		}
 	}

@@ -1,15 +1,27 @@
-#include <SDL2/SDL.h>
-#include "Vec3d.h"
-#include "Poly3d.h"
+#pragma once
+#include <vector>
+#include <nch/cpp-utils/color.h>
+#include <nch/math-utils/mat4x4.h>
+#include <nch/math-utils/vec3.h>
 
-class Tri3d : public Poly3d {
+
+class Tri3d {
 public:
-    Tri3d(const Vec3d& p0, const Vec3d& p1, const Vec3d& p2);
-    Tri3d(double coords[9]);
+    typedef nch::Vec3<double> t_vec3d;
+    typedef nch::Vec4<double> t_vec4d;
 
-    Tri3d& operator=(const Poly3d& other);
-    Vec3d normal();
+    Tri3d();
+    Tri3d(t_vec3d p1, t_vec3d p2, t_vec3d p3);
+    Tri3d(double arr[9]);
+    ~Tri3d();
 
-    SDL_Color col;
+    Tri3d stretch(const t_vec3d& tv);
+    Tri3d translate(const t_vec3d& tv);
+    Tri3d multiplyVertices(const nch::Mat4x4<double>& m);
+
+    static int clipAgainstPlane(t_vec3d planeP, t_vec3d planeN, Tri3d& inTri, Tri3d& outTri1, Tri3d& outTri2);
+
+    std::vector<t_vec4d> p;
+    nch::Color col = nch::Color(255, 255, 255);
 private:
 };
