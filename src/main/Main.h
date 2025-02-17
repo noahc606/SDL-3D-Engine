@@ -4,8 +4,10 @@
 
 class Main {
 public:
-    static SDL_Renderer* getRenderer();
     static SDL_Window* getWindow();
+    static SDL_Renderer* getRenderer();
+    static SDL_PixelFormat* getPixelFormat();
+    static std::string getBinDirPath();
     static int getWidth();
     static int getHeight();
 

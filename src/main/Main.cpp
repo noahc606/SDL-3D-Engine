@@ -1,54 +1,54 @@
 #include "Main.h"
 #include <iostream>
-#include <nch/math-utils/mat4x4.h>
-#include <nch/sdl-utils/input.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include "MainLoop.h"
-#include "MatrixOps.h"
-#include <nch/cpp-utils/string-utils.h>
 
 using namespace nch;
 
-SDL_Renderer* renderer = nullptr;
 SDL_Window* win = nullptr;
+SDL_Renderer* renderer = nullptr;
+SDL_PixelFormat* pxFmt = nullptr;
+std::string binDirPath = "???null???";
 
 int main()
 {
-    SDL_Init(0);
+    //Initializing libs
+    SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
     TTF_Init();
 
-    win = SDL_CreateWindow("Out-of-this-World Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, 0);
+    //Create window, renderer, pixelFormat, dir path
+    win = SDL_CreateWindow("Out-of-this-World Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, SDL_WINDOW_VULKAN);
     SDL_SetWindowResizable(win, SDL_TRUE);
-    renderer = SDL_CreateRenderer(win, -1, 0);
+    renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     SDL_ShowWindow(win);
-    
-	//Set icon
+    pxFmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+    binDirPath = SDL_GetBasePath();
+
+	//Set application icon
 	SDL_Surface* tempico = IMG_Load("res/icon.png");
 	SDL_SetWindowIcon(win, tempico);
 	SDL_FreeSurface(tempico);
 
-    if(true) {
-        MainLoop ml;
-    } else {
-
-    }
-    
-
+    //Do main loop, then quit
+    MainLoop ml;    
     SDL_Quit();
     return 0;
 }
 
 int WinMain() { return main(); }
 
-SDL_Renderer* Main::getRenderer() { return renderer; }
 SDL_Window* Main::getWindow() { return win; }
+SDL_Renderer* Main::getRenderer() { return renderer; }
+SDL_PixelFormat* Main::getPixelFormat() { return pxFmt; }
+std::string Main::getBinDirPath() { return binDirPath; }
 int Main::getWidth() { int res; SDL_GetWindowSize(win, &res, NULL); return res; }
 int Main::getHeight() { int res; SDL_GetWindowSize(win, NULL, &res); return res; }
 
 void Main::drawText(SDL_Renderer* r, std::string text, int x, int y)
 {
-    TTF_Font* monofont = TTF_OpenFont("res/FreeMono.ttf", 20);
+    TTF_Font* monofont = TTF_OpenFont((getBinDirPath()+"res/FreeMono.ttf").c_str(), 20);
     SDL_Color white = {255, 255, 255};
 
     int textWidth = 0;
