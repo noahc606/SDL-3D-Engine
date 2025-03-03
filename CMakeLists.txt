@@ -1,19 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
+set(PROJ_NAME "SDL-3D")
 
 if (WIN32)
-    set(PROJ_OUT "SDL-3D-windows")
+    set(PROJ_OUT "${PROJ_NAME}-windows-x86_64")
+    set(CMAKE_WIN32_EXECUTABLE TRUE)
 endif (WIN32)
 if (UNIX)
-    set(PROJ_OUT "SDL-3D-unix")
+    set(PROJ_OUT "${PROJ_NAME}-unix")
 endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-set(CMAKE_C_FLAGS "-std=c++11 -fopenmp -o")
-set(CMAKE_CXX_FLAGS "-fopenmp")
-set(OMP_NUM_THREADS "16")
+set(CMAKE_C_FLAGS "-std=c++11 -o")
 
 # Get list of sources and headers
 file (GLOB_RECURSE PROJ_SOURCES FOLLOW_SYMLINKS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/include/*.cpp")
